@@ -1,0 +1,28 @@
+# Binaries
+gohmr
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Build output
+/tmp/
+/dist/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Editor directories
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -178,6 +178,8 @@ func (s *Server) runWithTakeover() error {
 		return fmt.Errorf("failed to start takeover server: %w", err)
 	}
 
+	log.Printf("[gohmr] takeover server listening on %s", s.opts.SocketPath)
+
 	// Handle signals
 	s.setupSignalHandler()
 

@@ -57,11 +57,17 @@ func (s *TakeoverServer) Start() error {
 
 // Stop stops the takeover server
 func (s *TakeoverServer) Stop() {
-	close(s.done)
+	select {
+	case <-s.done:
+		// Already stopped
+		return
+	default:
+		close(s.done)
+	}
 	if s.listener != nil {
 		s.listener.Close()
 	}
-	os.Remove(s.socketPath)
+	// Note: Don't remove the socket here - it may belong to the new process
 }
 
 func (s *TakeoverServer) acceptLoop() {
@@ -72,12 +78,18 @@ func (s *TakeoverServer) acceptLoop() {
 			case <-s.done:
 				return
 			default:
+				// Check if the listener was closed (happens during takeover)
+				if opErr, ok := err.(*net.OpError); ok && opErr.Err.Error() == "use of closed network connection" {
+					return
+				}
 				log.Printf("[takeover] accept error: %v", err)
 				continue
 			}
 		}
 
-		go s.handleConnection(conn.(*net.UnixConn))
+		// Only handle one takeover at a time
+		s.handleConnection(conn.(*net.UnixConn))
+		return // After handling a takeover, stop accepting
 	}
 }
 
@@ -178,6 +190,11 @@ func (s *TakeoverServer) handleConnection(conn *net.UnixConn) {
 	if msg.Type != MsgSocketsAck {
 		log.Printf("[takeover] expected SocketsAck, got %s", msg.Type)
 		return
+	}
+
+	// Close the listener so we stop accepting (new process will remove and recreate socket)
+	if s.listener != nil {
+		s.listener.Close()
 	}
 
 	// Step 6: Receive StartDrain

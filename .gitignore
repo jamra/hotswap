@@ -1,5 +1,5 @@
 # Binaries
-gohmr
+/gohmr
 *.exe
 *.exe~
 *.dll

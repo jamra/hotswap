@@ -17,7 +17,8 @@ func main() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello from gohmr!\n")
+		fmt.Fprintf(w, "Hello from HOTSWAP v8!\n")
+		// fmt.Fprintf(w, "This is the edited version.\n")
 		fmt.Fprintf(w, "Server started: %s\n", startTime.Format(time.RFC3339))
 		fmt.Fprintf(w, "PID: %d\n", os.Getpid())
 		fmt.Fprintf(w, "Uptime: %s\n", time.Since(startTime).Round(time.Second))
